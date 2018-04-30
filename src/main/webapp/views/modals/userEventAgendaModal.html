@@ -1,0 +1,41 @@
+<md-dialog aria-label="Agenda" class="agendaModal">
+	<md-toolbar class="md-warn md-hue-2">
+	      <div class="md-toolbar-tools">
+	        <h2>Agenda</h2>
+	        <span flex></span>
+	        <md-button class="md-icon-button" ng-click="cancel()">
+	          <md-icon md-svg-icon="close" aria-label="Close Agenda"></md-icon>
+	        </md-button>
+	      </div>
+	</md-toolbar>
+	<div class="eventAgendaContainer">
+		<div layout="column">
+			<md-card ng-repeat="agenda in agendaList" class="agendaCard" layout="row" layout="start center">
+		        <div class="agendaTime agendaComponent" layout="column">
+					<div class="date  font-24">{{agenda.start_time | date: 'dd MMM'}}</div>
+					<div class="time">{{agenda.start_time | date: 'hh:mm a'}}</div>
+				</div>
+				<div class="agendaTitle" layout = "column">
+					<div flex class="spill-x-hidden spill-y-scroll">{{agenda.agenda}}</div>
+					<div ng-show ="agenda.end_time"  class="endTiming padding-vertical-10" layout = "row" layout-align="start center">
+						<md-icon class="margin-0" md-svg-icon="clock" aria-label="Schedule"></md-icon>
+						<div>
+							Ends At 
+						</div>
+						<div> - </div>
+						<div layout="row">
+							<b>
+								<span>{{agenda.end_time | date: 'dd MMM yy '}}</span>
+								<span>{{agenda.end_time | date: 'hh:mm a'}}</span>
+							</b>
+						</div>
+					</div>
+				</div>
+		    </md-card>
+		</div>
+		
+		<div layout="row">
+			<md-button class="md-raised" ng-click="cancel()">CLOSE</md-button>		
+		</div>
+	</div>
+</md-dialog>
