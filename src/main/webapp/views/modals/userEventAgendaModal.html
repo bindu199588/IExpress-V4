@@ -1,0 +1,22 @@
+<md-dialog aria-label="Agenda" class="agendaModal">
+	<md-toolbar class="md-warn md-hue-2">
+	      <div class="md-toolbar-tools">
+	        <h2>Agenda</h2>
+	        <span flex></span>
+	        <md-button class="md-icon-button" ng-click="cancel()">
+	          <md-icon md-svg-icon="close" aria-label="Close Agenda"></md-icon>
+	        </md-button>
+	      </div>
+	</md-toolbar>
+	<div class="eventAgendaContainer">
+		<div layout="column">
+			<md-card ng-repeat="agenda in agendaList" class="agendaCard" layout="row" layout="start center">
+        		<event-agenda  style="width:100%" layout="row" index="$index" is-admin="false" agenda="agenda" on-delete="deleteAgendaTemp(index,agenda)" on-update="editAgendaTemp(index,agenda)"></event-agenda>
+        	</md-card>			
+		</div>
+		
+		<div layout="row">
+			<md-button class="md-raised" ng-click="cancel()">CLOSE</md-button>		
+		</div>
+	</div>
+</md-dialog>

@@ -1,0 +1,68 @@
+<md-dialog aria-label="Questions" class="userQuestionsModal">
+	<md-toolbar class="md-warn md-hue-2">
+	      <div class="md-toolbar-tools">
+	        <h5 class="font-20">Questions - <b>{{eventData.name}}</b></h5>
+	        <span flex></span>
+	        <md-button class="md-icon-button " ng-click="cancel()">
+	          <md-icon md-svg-icon="close" aria-label="Close Questions"></md-icon>
+	        </md-button>
+	      </div>
+	</md-toolbar>
+	<div class="userQuestionsContainer" layout="row">		
+			<div class="userformContainer userContainer padding-horizontal-10 padding-vertical-10">
+				<div layout="column">
+					<h4>Ask a question</h4>						
+					<textarea placeholder="Write something here..." maxlength="250"
+						ng-model="curUserQuestion" required>
+					</textarea>
+					<div class="errorMessages" ng-show="errorMessages.swearWordsError">Mind the language please!!</div>	
+					<br>
+					<md-button class="md-warn md-raised md-hue-2 margin-0" ng-click="askQuestion()">POST</md-button>					
+				</div>
+			</div>
+			<div class="userContainer padding-horizontal-10 padding-vertical-10" layout="column">
+				
+				<h4>Popular Questions</h4>
+				<div class="postedQuestionsContainer" id="popularQuestionContainer">
+					<div ng-repeat="question in popularQuestions" class="card" layout="row" layout-align="start center">
+						<div flex>
+							<div class="cardMessage font-16">{{question.question}}</div>
+						</div>		
+						
+						<div layout="row" layout-align="start center">								
+							<md-button ng-click="likePopularQuestion($index,question)"  ng-disabled ="disableLikeList[question.id]" class="md-fab md-mini-30 md-warn md-hue-2 margin-0 margin-left-10">
+								<md-icon class="icon-16" md-svg-icon="thumbs_up" aria-label="sentiment"></md-icon>
+							</md-button>
+							<div class="margin-left-10 font-14 dark-red-color"> {{question.likecounter}}</div>
+						</div>
+					</div>
+					<div ng-show="popularQuestions.length==0" class="adminEventItem" layout="row" layout-align="center center">
+							<div class="not-too-much-grey" flex>NO QUESTIONS YET</div>
+					</div>
+				</div>
+				
+				
+				<h4>Other Questions</h4>
+				<div class="postedQuestionsContainer" id="questionContainer">
+					<div ng-repeat="question in curListQuests" class="card" layout="row" layout-align="start center">
+						<div flex>
+							<div class="cardMessage font-16">{{question.question}}</div>
+						</div>		
+						
+						<div layout="row" layout-align="start center">								
+							<md-button ng-click="likeQuestion($index,question.id)"  ng-disabled ="disableLikeList[question.id]" class="md-fab md-mini-30 md-warn md-hue-2 margin-0 margin-left-10">
+								<md-icon class="icon-16" md-svg-icon="thumbs_up" aria-label="sentiment"></md-icon>
+							</md-button>
+							<div class="margin-left-10 font-14 dark-red-color"> {{question.likecounter}}</div>
+						</div>
+					</div>
+					<div ng-show="curListQuests.length==0" class="adminEventItem" layout="row" layout-align="center center">
+							<div class="not-too-much-grey" flex>NO QUESTIONS YET</div>
+					</div>
+				</div>
+				
+			</div>
+	</div>
+</md-dialog>
+
+

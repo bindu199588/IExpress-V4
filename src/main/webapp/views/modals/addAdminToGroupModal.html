@@ -1,0 +1,33 @@
+<div class="addAdminToGroupModalContainer modalContainer">
+	<h2>Create New Admin In Group</h2>
+	<form ng-submit="createNewAdmin()" name = "adminForm">
+		<div layout="column">
+			<div class="successMessages" ng-show="errorMessages.addSuccessMessage">USER ADDED!! </div>
+			<div layout-gt-xs="row" layout-xs="column"  layout-align="center center">
+				<md-input-container>
+			        <label>User Name</label>
+			        <input ng-model="username" required>
+			        
+			    </md-input-container>
+			    
+			  	<md-button class="md-warn md-raised md-hue-2" ng-click="addAdminToGroup()">CREATE AND ADD USER</md-button>			
+	
+		    </div>
+		    <div class="errorMessages" ng-show="errorMessages.emptyError">This field cannot be empty </div>		    
+		    
+	    </div>
+	    <div class="adminListWrapper" layout="column">	    
+			<h4 class="pure-black">List of existing users you can add ..</h4>
+			<div class="adminEventsWrapper">
+				<div class="listItem" ng-repeat="admin in allAdmin" layout="row" layout-align="center center">
+					<div class="adminEventName" flex>{{admin.username}}</div>	
+					<md-button class="md-warn md-raised md-hue-2" ng-click="addAdminToGroup(admin)">ADD USER TO GROUP</md-button>			
+				</div>
+				
+			</div>
+			
+		</div>
+	
+		<md-button class="md-raised" ng-click="cancel()" type="button">CLOSE</md-button>	
+	</form>	
+</div>

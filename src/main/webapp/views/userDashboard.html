@@ -1,0 +1,57 @@
+<div class="userDashboard-container" layout="column">
+  <div class="userDashboard-header" layout="row">
+  	<div flex>
+  		<div class = "headings font-16">
+  			{{eventData.name}}
+  		</div>
+  		<div class = "not-too-much-grey font-12" ></div>
+  		<div flex layout="row" layout-align="start start" class="font-14">
+	  		<md-button class="margin-0" ng-click="showQuestions($event)">
+	  			<a href=""> Ask a Question</a>
+	  		</md-button>
+	  		<md-button class="margin-0" ng-click="showAgenda($event)">
+	  			<a href=""> Agenda</a>
+	  		</md-button>
+  		</div>
+  	</div>
+  	
+  	 <md-button aria-label="Logout" ng-click ="logout()">
+  	 	  <md-tooltip md-direction="bottom">Logout</md-tooltip>
+          <md-icon class="md-warn icon-30" md-svg-icon="logout"></md-icon>
+     </md-button>
+  </div>
+  <div class="cards-container" layout ="row" layout-align="start start">
+    <a ng-repeat="hashtag in hashtagList" ng-click = "goToPostScreen($index)">
+      <md-card class="hashtag-card" >
+        <md-card-title class="hashtag-card-header -greenColor">
+          <md-card-title-text>
+            <span class="md-headline">{{hashtag.name}}</span>            
+            <span class="md-subhead">{{hashtag.desc}}</span>
+          </md-card-title-text>
+          <!--<div class="respCountContainer">{{hashtag.total}}</div>  -->
+        </md-card-title>
+        <md-card-content class="hashtag-card-content">
+          <div class="percentContainer" layout="row" layout-align="space-around center">
+            <div ng-repeat="emotion in emoList" class="emojiWrapper -{{emotion.name}}" layout="column" layout-align="center center">
+               <md-icon md-svg-icon="{{emotion.icon}}" aria-label="sentiment"></md-icon>
+               <div class="emoPercent">{{hashtag[emotion.name]/hashtag['total']*100 | number: 2}}%</div>
+               <md-progress-linear md-mode="determinate" value="{{hashtag[emotion.name]/hashtag['total']*100}}"></md-progress-linear>
+            </div>
+          </div>
+        </md-card-content>
+        <md-card-actions class="hashtag-card-actions">
+          <div class="respCountContainer">
+          	<span style="font-size:13px">Responses : </span>
+          	<span style="font-weight:600">{{hashtag.total}}</span>
+          </div>
+          <img ng-show="hashtagList.length >3 && $index <3 && hashtag['total'] > 0" src="images/icons/animated-fire-image-0379.gif" alt="Popular" height="24" width="24" ng-cloak>
+          <!-- <md-icon md-svg-icon="images/icons/animated-fire-image-0379.gif" aria-label="sentiment"></md-icon>  -->
+        </md-card-actions>
+      </md-card>
+    </a>
+    <!-- <cards-pagination></cards-pagination> -->
+  </div>
+
+  
+
+</div>

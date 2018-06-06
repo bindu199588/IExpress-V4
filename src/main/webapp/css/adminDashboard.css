@@ -1,0 +1,133 @@
+.dashboardWrapper{
+	flex-wrap:wrap;
+}
+
+.graphWrapper, .graphWrapper .subHeadings,#trendsContainer {
+	width: 500px;
+    max-width: 100%;
+    flex: 1 1 500px;
+}
+.graphWrapper h4 ,.graphWrapper #graphSelect, .graphWrapper .subHeadings{
+	padding:0px 15px;
+}
+.adminWrappers{
+	flex:1 1 360px;
+	max-width:100%;
+	min-width:360px;
+	max-height:600px;
+	padding:0px 15px;
+}
+.graphWrapper .subHeadings{
+	width: -moz-fit-content;
+}
+.dashboardWrapper .adminWrappers{
+	margin:0px auto;
+}
+
+.dashboardWrapper .adminWrappers button{
+    margin: 6px 0px;
+}
+
+.adminEventsWrapper{
+	overflow-y:scroll;
+	max-height:350px;
+}
+
+.adminHashtagListWrapper{
+	
+}
+.listItem{
+	padding: 0px 10px;
+	border-bottom: 1px dotted lightgrey;
+}
+    
+.listItem:hover{
+	background-color:#f7f7f7;
+
+}
+.listItem.adminEventItem:hover{
+	cursor:pointer;
+
+}
+	
+.adminEventItem .adminEventName:hover{
+	text-decoration:underline;
+}
+.adminEventItem.active{
+	background-color:#e7e7e7;
+}
+
+.adminHashtagListWrapper .adminEventName{
+	margin:16px 0;
+	overflow:hidden;
+}
+
+.dtp>.dtp-content>.dtp-date-view>header.dtp-header, .dtp div.dtp-date, .dtp table.dtp-picker-days tr>td>a.selected,
+.dtp .dtp-actual-meridien a.selected, .dtp .dtp-picker-time>a.dtp-select-hour.selected,.dtp .dtp-hand.on {
+    background: #c80000;
+}
+
+
+
+.agendaModal{
+	width:500px;
+}
+
+.eventAgendaContainer{
+	overflow-y:scroll;
+}
+.agendaTime{
+	width:30%;
+	color:white;
+}
+
+.agendaTime .date{
+	height:30px;
+	padding:10px;
+	background-color:#b30000;
+}
+
+.agendaTime .time{
+	flex: 1;
+    padding: 10px;
+    background-color: #c80000;
+    height: 75px;
+}
+
+.agendaTitle{
+	background-color: lightgrey;
+	width:70%;
+	padding:10px;
+	height:145px;
+	word-wrap:break-word;
+}
+
+.agendaTitle .endTiming{
+	color:#616161;
+	font-size:14px;
+	height:35px;
+}
+
+.agendaTitle .endTiming>*{
+	margin:0px 10px;
+}
+
+.greyout .agendaTime .date{
+	background-color:#ababab;
+}
+
+.greyout .agendaTime .time{
+	background-color:#949494;
+}
+md-tabs.md-default-theme md-ink-bar, md-tabs md-ink-bar {
+    color: red!important;
+    background: red!important;
+}
+
+md-tabs.md-default-theme .md-tab.md-active, md-tabs .md-tab.md-active, md-tabs.md-default-theme .md-tab.md-active md-icon, md-tabs .md-tab.md-active md-icon, md-tabs.md-default-theme .md-tab.md-focused, md-tabs .md-tab.md-focused, md-tabs.md-default-theme .md-tab.md-focused md-icon, md-tabs .md-tab.md-focused md-icon {
+    color: #a40000;
+}
+md-content.md-default-theme, md-content {
+    color: #505050;
+    background-color: white;
+}

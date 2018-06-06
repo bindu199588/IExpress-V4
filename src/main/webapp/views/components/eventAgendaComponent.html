@@ -1,0 +1,73 @@
+<div id="agenda-read-only" ng-show="!ctrl.agenda.showInput" layout="row" style="width:100%">
+
+<div class="agendaTime agendaComponent" layout="column">      	
+	<div class="date font-24">{{ctrl.agenda.start_time | date: 'dd MMM'}}</div>
+	<div class="time">{{ctrl.agenda.start_time | date: 'hh:mm a'}}</div>
+</div>
+
+<div class="agendaTitle" layout = "column">
+	<div flex layout="row">
+	 	<div flex class="spill-x-hidden spill-y-scroll" >{{ctrl.agenda.agenda}}</div>						
+		<div layout="column" ng-show="ctrl.isAdmin">
+			<md-button class="md-icon-button margin-0" ng-click="openEditAgenda()">
+			  <md-tooltip md-direction="bottom">Edit Agenda</md-tooltip>
+	          <md-icon md-svg-icon="edit" aria-label="Edit Agenda"></md-icon>
+	        </md-button>
+			<md-button class="md-icon-button margin-0" ng-click="ctrl.onDelete(ctrl.index,ctrl.agenda)">
+			  <md-tooltip md-direction="bottom">Delete Agenda</md-tooltip>
+	          <md-icon md-svg-icon="close" aria-label="Delete Agenda"></md-icon>
+	        </md-button>
+        </div>
+       
+	</div>
+	<div ng-show ="ctrl.agenda.end_time" class="endTiming padding-vertical-10" layout = "row" layout-align="start center">
+		<md-icon class="margin-0" md-svg-icon="clock" aria-label="Schedule"></md-icon>
+		<div layout="column">
+			<div>
+				Ends At 
+			</div>
+		</div>
+		<div> - </div>
+		<div layout="row"><b>
+			<span>{{ctrl.agenda.end_time | date: 'dd MMM yy'}}</span>
+			<span>{{ctrl.agenda.end_time | date: 'hh:mm a'}}</span></b>
+		</div>
+	</div>
+</div>
+
+
+</div>
+
+<div id="agenda-write-only" ng-show="ctrl.agenda.showInput" style="width:100%" >
+	<div layout="column" class="modalContainer">
+		  <md-input-container>
+		        <label>Agenda Title</label>
+		        <input ng-model="curAgenda.agenda" required>
+		  </md-input-container>
+		  <md-input-container class="md-input-has-placeholder">
+		    <label>Start Date/Time</label>
+		    <input ng-click="displayDateDialog('start_time')" ng-model="displayTime.start_time"  placeholder="Start Time" >
+		    <!--<input mdc-datetime-picker="" date="true" time="true" type="text"
+		    placeholder="Date" max-date="curAgenda.end_time" ng-model="curAgenda.start_time" class=" md-input"
+		    readonly="readonly" id="input_0">  -->
+		    
+		  </md-input-container>
+		  <md-input-container class="md-input-has-placeholder">
+		    <label>End Date/Time</label>
+		    <input ng-click="displayDateDialog('end_time')" ng-model="displayTime.end_time"  placeholder="End Time" >
+		    <!--<input mdc-datetime-picker="" date="true" time="true" type="text"
+		    placeholder="Date" min-date="curAgenda.start_time" ng-model="curAgenda.end_time" class=" md-input" 
+		    id="input_1" readonly="readonly">  -->
+		    <!--<div class="md-errors-spacer"></div>  -->
+		  </md-input-container>		  
+		  
+		  <div layout="row">
+			 <md-button class="md-warn md-hue-2" ng-click="saveEditAgenda()">
+	          Save
+	         </md-button>
+	         <md-button class="md-warn md-hue-2" ng-click="cancelEditAgenda()">
+	          Cancel
+	         </md-button>				  	
+		  </div>
+	</div>
+</div>
