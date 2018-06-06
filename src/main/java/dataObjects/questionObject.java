@@ -10,16 +10,16 @@ public class questionObject {
 	private String question;
 	private Long event_id;
 	private Long created_on;
-	private Long count;
+	private Long likecounter;
 	
 	
-	public questionObject(String id, String question, Long event_id, Long created_on, Long count) {
+	public questionObject(String id, String question, Long event_id, Long created_on, Long likecounter) {
 		super();
 		this.id = id;
 		this.question = question;
 		this.event_id = event_id;
 		this.created_on = created_on;
-		this.count = count;
+		this.likecounter = likecounter;
 	}
 	
 	public String getId() {
@@ -46,10 +46,13 @@ public class questionObject {
 	public void setCreated_on(Long created_on) {
 		this.created_on = created_on;
 	}
-	public Long getCount() {
-		return count;
+
+	public Long getLikecounter() {
+		return likecounter;
 	}
-	public void setCount(Long count) {
-		this.count = count;
+
+	public void setLikecounter(Long likecounter) {
+		this.likecounter = likecounter;
 	}
+	
 }

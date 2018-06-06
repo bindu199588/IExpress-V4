@@ -1,0 +1,33 @@
+<div class="modifyEventModalContainer modalContainer" ng-cloak>
+	<h3>Event Details</h3>
+	<form ng-submit="saveEvent()" name = "eventForm" ng-hide="(create && userGroups.length <= 0)">
+		<md-input-container ng-show="create" >
+          <label>Select Group</label>
+          <md-select ng-model="eventData.userGroup">
+            <md-option ng-value=""><em>None</em></md-option>
+            <md-option ng-repeat="group in userGroups" ng-value="group">
+              {{group.group_name}}
+            </md-option>
+          </md-select>
+          <div class="md-errors-spacer"></div>
+        </md-input-container>
+        
+		<md-input-container>
+	        <label>Event Name</label>
+	        <input ng-model="eventData.name" required>
+	        <ng-messages for="eventForm.$error"  role="alert">
+	            <ng-message when="required">This is required</ng-message>
+	        </ng-messages>
+	    </md-input-container>
+	    <md-input-container>
+	        <label>Description</label>
+	        <input ng-model="eventData.description">
+	    </md-input-container>
+	    <md-button class="md-warn md-raised md-hue-2" type="Submit">SAVE</md-button>
+		<md-button class="md-raised" ng-click="cancel()" type="button">CANCEL</md-button>	
+	</form>
+	<div ng-hide="!create || (create && userGroups.length > 0 )" layout="column">
+		<h4 class="not-too-much-grey">NO ACCESS TO ANY GROUPS</h4>
+		<md-button class="md-raised" ng-click="cancel()" type="button">CANCEL</md-button>
+	</div>			
+</div>

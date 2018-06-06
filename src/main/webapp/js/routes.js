@@ -10,7 +10,10 @@ app.config(function($stateProvider, $urlRouterProvider){
 		templateUrl : "views/adminLogin.html",
 		controller:"adminLoginCtrl",
 		isAdmin : true,
-		redirectPage: 'adminDashboard'
+		redirectPage: 'adminDashboard',
+		params:{
+			userData:null
+		}
 	})
 	.state("adminDashboard",{
 		url:	"/adminDashboard",
@@ -43,7 +46,7 @@ app.config(function($stateProvider, $urlRouterProvider){
 	.state("userPostScreen",{
 		url:	"/userPostScreen/:tagId",
 		templateUrl : "views/userPostScreen.html",
-		 params: {
+		params: {
 		        tagName: null,
 		        tagDesc: null,
 		        eventData : null

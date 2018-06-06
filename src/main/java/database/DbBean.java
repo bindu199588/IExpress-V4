@@ -40,8 +40,8 @@ public class DbBean {
 	{
 		
 			try {
-			    DataSource source = (DataSource)new InitialContext().lookup("xys_db");
-			    con = source.getConnection();
+			    DataSource src = (DataSource)new InitialContext().lookup("xys_db");
+			    con = src.getConnection();
 			} catch(SQLException e) {
 			    System.out.println("log error");
 			} catch(NamingException e) {

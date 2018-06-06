@@ -1,8 +1,8 @@
 <div class="userPostScreenHeader" layout="row">
 	<!--<a ui-sref="userDashboard"><md-icon md-svg-icon="arrow_back" aria-label="sentiment"></md-icon></a>  -->
 	<div layout="column" layout-align="center start" flex>
-		<h4 class="headings">{{tagName}}</h4>
-		<h5 class="headings">{{tagDesc}}</h5>
+		<h4 class="headings pure-black">{{tagName}}</h4>
+		<h5 class="headings pure-black">{{tagDesc}}</h5>
 	</div>	
 	<md-button aria-label="Logout" ng-click ="logout()">
 		  <md-tooltip md-direction="bottom">Logout</md-tooltip>
@@ -17,22 +17,26 @@
 			<textarea placeholder="Write your thoughts here ..." maxlength="250"
 				ng-model="selTweet" required>
 			</textarea>
+			<div class="errorMessages" ng-show="errorMessages.emptyError">This cannot be empty!!</div>
+			<div class="errorMessages" ng-show="errorMessages.swearWordsError">Mind the language please!!</div>	
 			<br>
-			<md-button class="md-warn md-raised md-hue-2 margin-0" ng-click="postTweet()">POST</md-button>
+			<md-button class="md-warn md-raised md-hue-2 margin-0" ng-click="postComment()">POST</md-button>
 			<br>
 			<br>
 			<div class="percentContainer" layout="row" layout-align="space-between center">
 	            <div ng-repeat="emotion in emoList" class="emojiWrapper -{{emotion.name}}">
-	               <md-icon class="icon-30" md-svg-icon="{{emotion.icon}}" aria-label="sentiment"></md-icon>
-	               <div class="emoPercent">{{emoPercents[emotion.name]/emoPercents['total']*100 | number: 2}}%</div>
-	               <md-progress-linear md-mode="determinate" value="{{emoPercents[emotion.name]/emoPercents['total']*100}}"></md-progress-linear>
+					<md-button ng-disabled="userRatings[tagId]" class="md-raised md-hue-2 margin-0 padding-10" ng-click="askRatingConfirmation($event,$index)">
+						<md-icon class="icon-30" md-svg-icon="{{emotion.icon}}" aria-label="sentiment"></md-icon>
+						<div class="emoPercent">{{emoPercents[emotion.name]/emoPercents['total']*100 | number: 2}}%</div>
+						<md-progress-linear md-mode="determinate" value="{{emoPercents[emotion.name]/emoPercents['total']*100}}"></md-progress-linear>
+					</md-button>	               
 	            </div>
           	</div>
 		</div>
 	</div>
 	<div class="userContainer padding-horizontal-10 padding-vertical-10">
 		<h4>Other Responses</h4>
-		<div class="postedCommentsContainer" id="tweetContainer">
+		<div class="postedQuestionsContainer" id="tweetContainer">
 			<div ng-repeat="tweet in curListTweets" class="card" layout="row" layout-align="space-between center">
 				<div flex>
 					<!--<div class="cardTitle">{{tweet.tag_id}}</div>  -->

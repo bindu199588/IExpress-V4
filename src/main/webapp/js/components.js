@@ -14,6 +14,11 @@ app.component("eventAgenda", {
   templateUrl: 'views/components/eventAgendaComponent.html',
   controller:	'eventAgendaComponentCtrl',
   bindings: {
-	  
+	  isAdmin: '<',
+	  agenda: '<',
+	  onDelete: '&',
+	  onUpdate: '&',
+	  index:'<'
   }
 });
+

@@ -1,0 +1,18 @@
+<div class="createGroupModalContainer modalContainer">
+	<h2>Create New Group</h2>
+	<form ng-submit="createGroup()" name = "groupForm">
+		<md-input-container>
+	        <label>Group Name</label>
+	        <input ng-model="group_name" required>
+	        <ng-messages for="groupForm.$error"  role="alert">
+	            <ng-message when="required">This is required</ng-message>
+	        </ng-messages>
+	    </md-input-container>
+	    <md-input-container>
+	        <label>Description</label>
+	        <input ng-model="description">
+	    </md-input-container>
+	    <md-button class="md-warn md-raised md-hue-2" type="Submit">CREATE</md-button>
+		<md-button class="md-raised" ng-click="cancel()" type="button">CANCEL</md-button>	
+	</form>			
+</div>

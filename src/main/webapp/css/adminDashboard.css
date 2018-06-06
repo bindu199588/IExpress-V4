@@ -59,6 +59,7 @@
 
 .adminHashtagListWrapper .adminEventName{
 	margin:16px 0;
+	overflow:hidden;
 }
 
 .dtp>.dtp-content>.dtp-date-view>header.dtp-header, .dtp div.dtp-date, .dtp table.dtp-picker-days tr>td>a.selected,
@@ -117,4 +118,16 @@
 
 .greyout .agendaTime .time{
 	background-color:#949494;
+}
+md-tabs.md-default-theme md-ink-bar, md-tabs md-ink-bar {
+    color: red!important;
+    background: red!important;
+}
+
+md-tabs.md-default-theme .md-tab.md-active, md-tabs .md-tab.md-active, md-tabs.md-default-theme .md-tab.md-active md-icon, md-tabs .md-tab.md-active md-icon, md-tabs.md-default-theme .md-tab.md-focused, md-tabs .md-tab.md-focused, md-tabs.md-default-theme .md-tab.md-focused md-icon, md-tabs .md-tab.md-focused md-icon {
+    color: #a40000;
+}
+md-content.md-default-theme, md-content {
+    color: #505050;
+    background-color: white;
 }

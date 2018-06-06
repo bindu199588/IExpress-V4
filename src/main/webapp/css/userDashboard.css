@@ -99,19 +99,19 @@ md-card md-card-actions {
 	min-width:0px!important;
 	min-height:0px!important;
 }
-.emojiWrapper md-progress-linear{
+/*.emojiWrapper md-progress-linear{
 	width:40px;
-}
+}*/
 
 .emojiWrapper.-upset md-icon{
-	color:#da440a;
+	color:#da440a!important;
 } 
 .emojiWrapper.-upset md-progress-linear .md-container .md-bar{	
 	background-color:	#da440a;
 }
 
 .emojiWrapper.-sad md-icon{
-	color:#f57900;
+	color:#f57900!important;
 }
 .emojiWrapper.-sad  md-progress-linear .md-container .md-bar{
 	background-color:	#f57900;
@@ -119,20 +119,20 @@ md-card md-card-actions {
 
 
 .emojiWrapper.-neutral md-icon{
-	color:#ffac03;
+	color:#ffac03!important;
 }
 .emojiWrapper.-neutral  md-progress-linear .md-container .md-bar{
 	background-color:	#ffac03;
 }
 
 .emojiWrapper.-happy md-icon{
-	color:#4e9a06;
+	color:#4e9a06!important;
 }
 .emojiWrapper.-happy  md-progress-linear .md-container .md-bar{
 	background-color:	#4e9a06;
 }
 .emojiWrapper.-glad md-icon{
-	color:#006319;
+	color:#006319!important;
 }
 .emojiWrapper.-glad  md-progress-linear .md-container .md-bar{
 	background-color:	#006319;
@@ -156,4 +156,8 @@ md-card md-card-actions {
 	max-height:none!important;
 	width:100%!important;
 	height:100%!important;
+}
+
+.cardMessage{
+	word-wrap:break-word;
 }
