@@ -231,7 +231,458 @@ app.controller("indexController",function($rootScope,$scope){});
 ////////////          CONTROLLER FOR ADMIN DASHBOARD     /////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 
-app.controller("adminDashboardCtrl",function($scope,$q,$http,$state,$mdDialog,pageLoader,$state,$stateParams,UserAuthenticationService){	
+
+
+app.controller("adminGroupsTabCtrl",function($scope,$q,$http,$mdDialog){
+	/*
+	 * 
+	 * CODE TO LOAD THE GROUPS DATA FOR ADMIN
+	 * 
+	 */
+	$scope.loadGroups = function(){
+		if($scope.userData.is_super){
+			$http.post("rest/getAllGroups",$scope.userData)
+			.then(function(response){
+				$scope.groupList = response.data;
+				$scope.setThisGroupActive(0);
+			},function(error){
+				console.log("THERE HAS BEEN AN ERROR IN QUERYING THE DATABASE"+error);
+			});
+		}
+	}
+	$scope.loadGroups();
+
+	$scope.setThisGroupActive = function(groupIndex){
+		$scope.activeGroupIndex = groupIndex;
+		$scope.activeGroup = $scope.groupList[groupIndex];
+		$scope.getAdminForGroup($scope.activeGroup);				
+		$scope.unsavedAdminList = [];				
+	}
+	$scope.getAdminForGroup = function(groupData){
+		$http.post("rest/getAdminInGroup",groupData)
+		.then(function(response){
+			$scope.adminList = response.data
+		},function(error){
+			console.log("ERROR IN GETTING EVENT RELATED TAGS" + error);
+		});
+	}
+	
+	$scope.showAdminPassword = function(ev,adminIndex){
+		console.log($scope.adminList[adminIndex])
+		$scope.adminList[adminIndex]['showPassword'] = true;
+	}
+	$scope.hideAdminPassword = function(ev,adminIndex){
+		console.log($scope.adminList[adminIndex])
+		$scope.adminList[adminIndex]['showPassword'] = false;
+	}
+	$scope.openCreateGroupModal = function(ev){
+		$mdDialog.show({
+			  controller: 'createGroupModalController',
+		      templateUrl: 'views/modals/createGroupModal.html',
+		      parent: angular.element(document.body),
+		      targetEvent: ev,
+		      clickOutsideToClose:true,
+		      fullscreen: false
+		})
+		.then(function(response){
+			$scope.loadGroups();
+		},function(){
+			console.log("GROUP CREATION CANCELLED");
+		});
+	}
+	$scope.openAddAdminToGroupModal = function(ev){
+		$mdDialog.show({
+			  controller: 'addAdminToGroupModalController',
+		      templateUrl: 'views/modals/addAdminToGroupModal.html',
+		      parent: angular.element(document.body),
+		      targetEvent: ev,
+		      clickOutsideToClose:true,
+		      locals:{groupData:$scope.activeGroup},
+		      fullscreen: false
+		})
+		.then(function(response){
+			$scope.getAdminForGroup($scope.activeGroup);					
+		},function(){
+			$scope.getAdminForGroup($scope.activeGroup);
+		});
+	}
+	$scope.removeUserFromGroup = function(){
+		
+	}
+})
+app.controller("adminEventsTabCtrl",function($scope,$q,$http,$mdDialog){
+
+	$scope.loadEvents = function(){
+		$http.post("rest/getEventsFromAdminId",$scope.userData)
+		.then((response)=>{
+			$scope.groupEventList = response.data;
+			console.log($scope.groupEventList);
+			$scope.setThisEventActive(0,0);
+		},(error)=>{
+			console.log("THERE HAS BEEN AN ERROR IN QUERYING THE DATABASE"+error);
+		})
+
+	}	
+	$scope.loadEvents();
+	/* 
+	 * SET THE SELECTED EVENT AS ACTIVE
+	 */
+	$scope.setThisEventActive = function(groupIndex,eventIndex){
+		$scope.activeEventIndex = eventIndex;
+		$scope.activeEventGroupIndex = groupIndex;
+		
+		$scope.activeEvent = $scope.groupEventList[groupIndex]['eventlist'][eventIndex];
+		
+		$scope.getTagsForEventId($scope.activeEvent['id']);
+		$scope.getTimeLineGraph($scope.activeEvent['id'],null);
+		$scope.currentTagsList = [];
+	}
+	/*
+	 * GET ALL TAGS RELATED TO THE EVENT
+	 */
+	$scope.getTagsForEventId = function(eventId){		
+		var config ={
+				id : eventId
+		}
+		$http.post("rest/getTagsFromEventId",config)
+		.then(function(response){
+			$scope.tagsList = response.data
+		},function(error){
+			console.log("ERROR IN GETTING EVENT RELATED TAGS" + error);
+		});
+	}
+	$scope.showAccessCode = function(ev,groupIndex,index){
+		$scope.setThisEventActive(groupIndex,index)
+		$scope.activeEvent['showAccess'] = true
+	}
+	
+	
+	
+	$scope.getTimeLineGraph =function(eventId,tagId){
+		var config = {
+				params:{
+					eventId:eventId,
+					tagId : tagId,
+				}
+		}
+		$http.get("rest/getEventGraphData",config)
+		.then(response =>{
+			var graphData = $scope.graphData = response.data;				
+			var seriesArray =[];
+			var names = {0:'UPSET',1:'SAD',2:'NEUTRAL',3:'HAPPY',4:'GLAD'}
+			for(k=0;k<5;k++){
+				seriesArray[k] = {name:names[k],data:[]};
+			}
+			
+			for(i=0;i < graphData["0"].length;i++){
+				totalCount = graphData["0"][i]['count'] + graphData["1"][i]['count'] + graphData["2"][i]['count'] + graphData["3"][i]['count'] +graphData["4"][i]['count']
+				
+				for(j = 0;j < 5;j++){
+					tempObject = {
+							x:new Date(graphData[j][i]['created_on']),
+							y:parseFloat((graphData[j][i]['count']/totalCount) * 100)
+					}
+					seriesArray[j]['data'].push(tempObject);
+				}
+			}
+			constructGraph(seriesArray);				
+		})
+		.catch(err=> console.log("ERROR GETTING GRAPH"+err));
+	}
+	
+	$scope.deleteUnsavedTag = function(index){
+		$scope.currentTagsList.splice(index,1);
+	}
+	
+	
+	
+	var openEventModal = function(ev,groupList,eventData,create){
+		return $q((resolve,reject)=>{
+				$mdDialog.show({
+					controller: 'ModifyEventModalController',
+				    templateUrl: 'views/modals/modifyEventModal.html',
+				    parent: angular.element(document.body),
+				    targetEvent: ev,
+				    clickOutsideToClose:true,
+				    locals:{
+				    	eventData:eventData,
+				    	groupList: groupList,
+				    	create:create
+				     },
+				    fullscreen: false
+				})
+				.then(function(response){
+					if(response)
+						return resolve(response)
+					else 
+						return reject()
+					
+				},function(){
+					console.log("CREATION CANCELLED")
+					return resolve();
+					
+				})
+		})
+	}
+	$scope.updateEvent = function(ev,groupIndex,index,editMode){
+		var modes ={
+				'CREATE_NEW':0,
+				'UPDATE':1,
+				'DISABLE':2
+		}
+		
+		switch(modes[editMode]){
+			case 0:
+				var eventData ={}
+				openEventModal(ev,$scope.groupEventList,eventData,true)
+				.then(eventResult => {
+					if(eventResult){
+						$http.post("rest/updateEvent",eventResult)
+						.then(response=>{
+							$scope.loadEvents();
+						});								
+					}
+					else{
+			    		console.log("NOTHING RETURNED FROM MODAL NEW CREATION")								
+					}
+				},function(){
+					console.log("MODAL RESPONSE REJECTED")
+				})
+				break;
+			case 1:
+				$scope.setThisEventActive(groupIndex,index)
+				var eventData = JSON.parse(JSON.stringify($scope.groupEventList[groupIndex]['eventlist'][index]));
+				eventData.userGroup = {
+						id: $scope.groupEventList[groupIndex].id
+				}
+				openEventModal(ev,null,eventData,false)
+				.then(eventResult => {
+					if(eventResult){
+						$http.post("rest/updateEvent",eventResult)
+						.then(response=>{
+							$scope.loadEvents();
+						});								
+					}
+					else{
+			    		console.log("NOTHING RETURNED FROM MODAL NEW CREATION")								
+					}
+				},function(){
+					console.log("MODAL RESPONSE REJECTED")
+				})
+				break;
+			case 2:
+				var eventData = JSON.parse(JSON.stringify($scope.groupEventList[groupIndex]['eventlist'][index]));
+				eventData.userGroup = {
+						id: $scope.groupEventList[groupIndex].id
+				}
+				eventData.is_active = !eventData.is_active
+				$http.post("rest/updateEvent",eventData)
+				.then(response=>{
+					$scope.groupEventList[groupIndex]['eventlist'][index] = JSON.parse(JSON.stringify(eventData));
+				});
+				break;
+		}
+	}	
+	
+	var openTagModal = function(ev,tagData){
+		return $q((resolve,reject) =>{
+			$mdDialog.show({
+				controller: 'ModifyTagModalController',
+			    templateUrl: 'views/modals/modifyTagModal.html',
+			    parent: angular.element(document.body),
+			    targetEvent: ev,
+			    clickOutsideToClose:true,
+			    locals:{
+			    	tagData:tagData
+			     },
+			    fullscreen: false
+			})
+			.then(function(response){
+				if(response)
+					return resolve(response)
+				else 
+					return reject()
+				
+			},function(){
+				console.log("CREATION CANCELLED")
+				return resolve();
+				
+			})
+		})		      
+	}
+	$scope.updateTag = function(ev,index,editMode){
+		var modes ={
+				'CREATE_NEW':0,
+				'EDIT_UNSAVED':1,
+				'EDIT_SAVED':2,
+				'DISABLE_TAG':3
+		}
+		switch(modes[editMode]) {
+		    case 0:
+		    	var tagData ={
+		    		event:{
+		    			id:$scope.activeEvent['id'],
+		    			userGroup : {
+			    				id:$scope.groupEventList[$scope.activeEventGroupIndex].id
+			    		}
+		    		}
+		    	}
+		    	var response = 
+		    	openTagModal(ev,tagData)
+		    	.then(response => {
+		    		if(response)
+		    			$scope.currentTagsList.push(response)
+		    		else
+			    		console.log("NOTHING RETURNED FROM TAG MODAL NEW CREATION")
+		    	},function(){
+		    		console.log("MODAL RESPONSE REJECTED")
+		    	})
+		    	break;
+		    case 1:
+		    	if(null!=index){				    		
+		    		openTagModal(ev,$scope.currentTagsList[index])
+			    	.then(response => {
+			    		if(response)
+			    			$scope.currentTagsList[index] = response
+			    		else
+				    		console.log("NOTHING RETURNED FROM MODAL NEW CREATION")
+			    	},function(){
+			    		console.log("MODAL RESPONSE REJECTED")
+			    	})						    	
+		    	}
+		    	else{
+		    		console.log("ERROR!! INDEX IS GIVEN AS NULL!!")
+		    	}
+		    	break;
+		    case 2:
+		    	if(null!=index){
+			    	openTagModal(ev,$scope.tagsList[index])
+			    	.then(response => {
+			    		if(response){
+			    			$http.post("rest/updateTag",response)
+				    		.then(result=>{
+				    			if(result){
+				    				$scope.getTagsForEventId($scope.tagsList[index].event.id)
+				    			}
+				    			else{
+				    				console.log("UPDATE RETURNED FALSE!! FAILED UPDATE")
+				    			}
+				    		})
+				    		.catch(error => {
+				    			console.log("ERROR WHILE UPDATING TAG IN DATABASE" + error)
+				    		})
+			    		}
+			    		else{
+			    			console.log("NOTHING RETURNED FROM MODAL NEW CREATION")
+			    		}
+				    		
+			    	},function(){
+			    		console.log("MODAL RESPONSE REJECTED")
+			    	})
+		    	}
+		    	else{
+		    		console.log("ERROR!! INDEX IS GIVEN AS NULL!!")
+		    	}
+		    	break;
+		    case 3:
+		    	if(null!=index){
+		    		var tag = JSON.parse(JSON.stringify($scope.tagsList[index]));							
+		    		tag.is_active = !tag.is_active
+		    		tag.event.userGroup = {
+		    				id:$scope.groupEventList[$scope.activeEventGroupIndex].id
+		    		}
+					$http.post("rest/updateTag",tag)
+					.then(response=>{
+						$scope.tagsList[index] = JSON.parse(JSON.stringify(tag));
+					});
+		    	}
+		    	else{
+		    		console.log("ERROR!! INDEX IS GIVEN AS NULL!!")
+		    	}
+		    	break;
+		}
+	}			
+	$scope.saveTagChanges = function(){
+		if($scope.currentTagsList.length >0 ){
+			console.log($scope.currentTagsList)
+			$http.post('rest/postAllNewTags',$scope.currentTagsList)
+			.then(response => {
+				$scope.currentTagsList = [];
+				$scope.getTagsForEventId($scope.activeEvent['id']);
+			})
+			.catch(err=>console.log(err))
+		}
+		
+	}
+	
+	$scope.openCreateAgendaModal = function(ev){
+		$mdDialog.show({
+			  controller: 'adminEventAgendaModalCtrl',
+		      templateUrl: 'views/modals/adminEventAgendaModal.html',
+		      parent: angular.element(document.body),
+		      targetEvent: ev,
+		      clickOutsideToClose:true,
+		      locals:{eventData:{eventId : $scope.activeEvent['id']}},
+		      fullscreen: true
+		})
+		.then(function(response){
+			//$scope.currentTagsList.push(response)
+		},function(){
+			console.log("CREATION CANCELLED");
+		});
+	}
+	
+	/**
+	 * 
+	 * FILE DOWNLOAD METHODS
+	 */
+	var downloadDataAsFile = function(data,fileName){
+	   var a = document.createElement('a');
+	   a.href = 'data:attachment/csv;charset=utf-8,' + encodeURI(data);
+	   a.target = '_blank';
+	   a.download = fileName;
+	   document.body.appendChild(a);
+	   a.click();
+	}
+	$scope.downloadComments = function(){
+		if($scope.activeTagForDownload){
+			var tagId = $scope.activeTagForDownload['id']
+			var tagName = $scope.activeTagForDownload['name'].trim()
+		}
+		var config = {
+				params:{
+					eventId : $scope.activeEvent['id'],
+					tagId :   tagId || null
+				}
+		}
+		$http.get("rest/exportComments",config)
+		.then(response => {
+			var fileName = 'CommentsList-['+ $scope.activeEvent['name'].trim() + '][' + (tagName || 'allTags') +'].txt';
+			downloadDataAsFile(response.data,fileName);
+		});
+	}
+	$scope.downloadQuestions = function(){
+		var config = {
+				params:{
+					eventId : $scope.activeEvent['id']
+				}
+		}
+		$http.get("rest/exportQuestions",config)
+		.then(response => {
+			var fileName = 'QuestionsList-['+ $scope.activeEvent['name'].trim() + '].txt';
+			downloadDataAsFile(response.data,fileName);
+		});
+	}
+	
+	
+	
+})
+app.controller("adminReviewsTabCtrl",function($scope,$q,$http,$mdDialog){
+	
+})
+
+
+app.controller("adminDashboardCtrl",function($scope,$q,$http,$state,$mdDialog,pageLoader,$stateParams,UserAuthenticationService){	
 	/*
 	 * GET THE LIST OF ALL EXISTING EVENTS
 	 */
@@ -245,6 +696,10 @@ app.controller("adminDashboardCtrl",function($scope,$q,$http,$state,$mdDialog,pa
 	    	$scope.activeTagForDownload = null	    	
 	    	$scope.userData=response;
 	    	
+	    	$scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+		      $scope.currentTab = toState.data.selectedTab;
+		    });
+	    	
 	    	$scope.logout = function(){
 	    		if(UserAuthenticationService.logout($scope.isAdmin)){
 	    			$state.go("adminLogin",{},{location:false});
@@ -253,474 +708,9 @@ app.controller("adminDashboardCtrl",function($scope,$q,$http,$state,$mdDialog,pa
 	    			console.log("UNABLE TO LOGOUT")
 	    		}    			
 	    	}
-	    	
-	    	$scope.loadEvents = function(){
-	    		$http.post("rest/getEventsFromAdminId",$scope.userData)
-	    		.then((response)=>{
-	    			$scope.groupEventList = response.data;
-	    			console.log($scope.groupEventList);
-	    			$scope.setThisEventActive(0,0);
-	    		},(error)=>{
-	    			console.log("THERE HAS BEEN AN ERROR IN QUERYING THE DATABASE"+error);
-	    		})
-
-			}	
-	    	$scope.loadEvents();
-	    	/* 
-			 * SET THE SELECTED EVENT AS ACTIVE
-			 */
-			$scope.setThisEventActive = function(groupIndex,eventIndex){
-				$scope.activeEventIndex = eventIndex;
-				$scope.activeEventGroupIndex = groupIndex;
-				
-				$scope.activeEvent = $scope.groupEventList[groupIndex]['eventlist'][eventIndex];
-				
-				$scope.getTagsForEventId($scope.activeEvent['id']);
-				$scope.getTimeLineGraph($scope.activeEvent['id'],null);
-				$scope.currentTagsList = [];
-			}
-	    	/*
-			 * GET ALL TAGS RELATED TO THE EVENT
-			 */
-			$scope.getTagsForEventId = function(eventId){		
-				var config ={
-						id : eventId
-				}
-				$http.post("rest/getTagsFromEventId",config)
-				.then(function(response){
-					$scope.tagsList = response.data
-				},function(error){
-					console.log("ERROR IN GETTING EVENT RELATED TAGS" + error);
-				});
-			}
-	    	
-	    	
-	    	
-	    	/*
-	    	 * 
-	    	 * CODE TO LOAD THE GROUPS DATA FOR ADMIN
-	    	 * 
-	    	 */
-			
-			
-			
-			
-			$scope.loadGroups = function(){
-				if($scope.userData.is_super){
-					$http.post("rest/getAllGroups",$scope.userData)
-					.then(function(response){
-						$scope.groupList = response.data;
-						$scope.setThisGroupActive(0);
-					},function(error){
-						console.log("THERE HAS BEEN AN ERROR IN QUERYING THE DATABASE"+error);
-					});
-				}
-			}
-			$scope.loadGroups();
-
-			$scope.setThisGroupActive = function(groupIndex){
-				$scope.activeGroupIndex = groupIndex;
-				$scope.activeGroup = $scope.groupList[groupIndex];
-				$scope.getAdminForGroup($scope.activeGroup);				
-				$scope.unsavedAdminList = [];				
-			}
-			$scope.getAdminForGroup = function(groupData){
-				$http.post("rest/getAdminInGroup",groupData)
-				.then(function(response){
-					$scope.adminList = response.data
-				},function(error){
-					console.log("ERROR IN GETTING EVENT RELATED TAGS" + error);
-				});
-			}
-			
-			$scope.showAdminPassword = function(ev,adminIndex){
-				console.log($scope.adminList[adminIndex])
-				$scope.adminList[adminIndex]['showPassword'] = true;
-			}
-			$scope.hideAdminPassword = function(ev,adminIndex){
-				console.log($scope.adminList[adminIndex])
-				$scope.adminList[adminIndex]['showPassword'] = false;
-			}
-			
-			/*
-			 * END OF GROUP DATA CODE
-			 * 
-			 */
-			
-			$scope.showAccessCode = function(ev,groupIndex,index){
-				$scope.setThisEventActive(groupIndex,index)
-				$scope.activeEvent['showAccess'] = true
-			}
-			
-			
-			
-			$scope.getTimeLineGraph =function(eventId,tagId){
-				var config = {
-						params:{
-							eventId:eventId,
-							tagId : tagId,
-						}
-				}
-				$http.get("rest/getEventGraphData",config)
-				.then(response =>{
-					var graphData = $scope.graphData = response.data;				
-					var seriesArray =[];
-					var names = {0:'UPSET',1:'SAD',2:'NEUTRAL',3:'HAPPY',4:'GLAD'}
-					for(k=0;k<5;k++){
-						seriesArray[k] = {name:names[k],data:[]};
-					}
-					
-					for(i=0;i < graphData["0"].length;i++){
-						totalCount = graphData["0"][i]['count'] + graphData["1"][i]['count'] + graphData["2"][i]['count'] + graphData["3"][i]['count'] +graphData["4"][i]['count']
-						
-						for(j = 0;j < 5;j++){
-							tempObject = {
-									x:new Date(graphData[j][i]['created_on']),
-									y:parseFloat((graphData[j][i]['count']/totalCount) * 100)
-							}
-							seriesArray[j]['data'].push(tempObject);
-						}
-					}
-					constructGraph(seriesArray);				
-				})
-				.catch(err=> console.log("ERROR GETTING GRAPH"+err));
-			}
-			
-			/*
-			 * DELETE TAG 
-			 */
-			
-			$scope.deleteUnsavedTag = function(index){
-				$scope.currentTagsList.splice(index,1);
-			}
-			
-			
-			
-			var openEventModal = function(ev,groupList,eventData,create){
-				return $q((resolve,reject)=>{
-						$mdDialog.show({
-							controller: 'ModifyEventModalController',
-						    templateUrl: 'views/modals/modifyEventModal.html',
-						    parent: angular.element(document.body),
-						    targetEvent: ev,
-						    clickOutsideToClose:true,
-						    locals:{
-						    	eventData:eventData,
-						    	groupList: groupList,
-						    	create:create
-						     },
-						    fullscreen: false
-						})
-						.then(function(response){
-							if(response)
-								return resolve(response)
-							else 
-								return reject()
-							
-						},function(){
-							console.log("CREATION CANCELLED")
-							return resolve();
-							
-						})
-				})
-			}
-			$scope.updateEvent = function(ev,groupIndex,index,editMode){
-				var modes ={
-						'CREATE_NEW':0,
-						'UPDATE':1,
-						'DISABLE':2
-				}
-				
-				switch(modes[editMode]){
-					case 0:
-						var eventData ={}
-						openEventModal(ev,$scope.groupEventList,eventData,true)
-						.then(eventResult => {
-							if(eventResult){
-								$http.post("rest/updateEvent",eventResult)
-								.then(response=>{
-									$scope.loadEvents();
-								});								
-							}
-							else{
-					    		console.log("NOTHING RETURNED FROM MODAL NEW CREATION")								
-							}
-						},function(){
-							console.log("MODAL RESPONSE REJECTED")
-						})
-						break;
-					case 1:
-						$scope.setThisEventActive(groupIndex,index)
-						var eventData = JSON.parse(JSON.stringify($scope.groupEventList[groupIndex]['eventlist'][index]));
-						eventData.userGroup = {
-								id: $scope.groupEventList[groupIndex].id
-						}
-						openEventModal(ev,null,eventData,false)
-						.then(eventResult => {
-							if(eventResult){
-								$http.post("rest/updateEvent",eventResult)
-								.then(response=>{
-									$scope.loadEvents();
-								});								
-							}
-							else{
-					    		console.log("NOTHING RETURNED FROM MODAL NEW CREATION")								
-							}
-						},function(){
-							console.log("MODAL RESPONSE REJECTED")
-						})
-						break;
-					case 2:
-						var eventData = JSON.parse(JSON.stringify($scope.groupEventList[groupIndex]['eventlist'][index]));
-						eventData.userGroup = {
-								id: $scope.groupEventList[groupIndex].id
-						}
-						eventData.is_active = !eventData.is_active
-						$http.post("rest/updateEvent",eventData)
-						.then(response=>{
-							$scope.groupEventList[groupIndex]['eventlist'][index] = JSON.parse(JSON.stringify(eventData));
-						});
-						break;
-				}
-			}	
-			
-			var openTagModal = function(ev,tagData){
-				return $q((resolve,reject) =>{
-					$mdDialog.show({
-						controller: 'ModifyTagModalController',
-					    templateUrl: 'views/modals/modifyTagModal.html',
-					    parent: angular.element(document.body),
-					    targetEvent: ev,
-					    clickOutsideToClose:true,
-					    locals:{
-					    	tagData:tagData
-					     },
-					    fullscreen: false
-					})
-					.then(function(response){
-						if(response)
-							return resolve(response)
-						else 
-							return reject()
-						
-					},function(){
-						console.log("CREATION CANCELLED")
-						return resolve();
-						
-					})
-				})		      
-			}
-			$scope.updateTag = function(ev,index,editMode){
-				var modes ={
-						'CREATE_NEW':0,
-						'EDIT_UNSAVED':1,
-						'EDIT_SAVED':2,
-						'DISABLE_TAG':3
-				}
-				switch(modes[editMode]) {
-				    case 0:
-				    	var tagData ={
-				    		event:{
-				    			id:$scope.activeEvent['id'],
-				    			userGroup : {
-					    				id:$scope.groupEventList[$scope.activeEventGroupIndex].id
-					    		}
-				    		}
-				    	}
-				    	var response = 
-				    	openTagModal(ev,tagData)
-				    	.then(response => {
-				    		if(response)
-				    			$scope.currentTagsList.push(response)
-				    		else
-					    		console.log("NOTHING RETURNED FROM TAG MODAL NEW CREATION")
-				    	},function(){
-				    		console.log("MODAL RESPONSE REJECTED")
-				    	})
-				    	break;
-				    case 1:
-				    	if(null!=index){				    		
-				    		openTagModal(ev,$scope.currentTagsList[index])
-					    	.then(response => {
-					    		if(response)
-					    			$scope.currentTagsList[index] = response
-					    		else
-						    		console.log("NOTHING RETURNED FROM MODAL NEW CREATION")
-					    	},function(){
-					    		console.log("MODAL RESPONSE REJECTED")
-					    	})						    	
-				    	}
-				    	else{
-				    		console.log("ERROR!! INDEX IS GIVEN AS NULL!!")
-				    	}
-				    	break;
-				    case 2:
-				    	if(null!=index){
-					    	openTagModal(ev,$scope.tagsList[index])
-					    	.then(response => {
-					    		if(response){
-					    			$http.post("rest/updateTag",response)
-						    		.then(result=>{
-						    			if(result){
-						    				$scope.getTagsForEventId($scope.tagsList[index].event.id)
-						    			}
-						    			else{
-						    				console.log("UPDATE RETURNED FALSE!! FAILED UPDATE")
-						    			}
-						    		})
-						    		.catch(error => {
-						    			console.log("ERROR WHILE UPDATING TAG IN DATABASE" + error)
-						    		})
-					    		}
-					    		else{
-					    			console.log("NOTHING RETURNED FROM MODAL NEW CREATION")
-					    		}
-						    		
-					    	},function(){
-					    		console.log("MODAL RESPONSE REJECTED")
-					    	})
-				    	}
-				    	else{
-				    		console.log("ERROR!! INDEX IS GIVEN AS NULL!!")
-				    	}
-				    	break;
-				    case 3:
-				    	if(null!=index){
-				    		var tag = JSON.parse(JSON.stringify($scope.tagsList[index]));							
-				    		tag.is_active = !tag.is_active
-				    		tag.event.userGroup = {
-				    				id:$scope.groupEventList[$scope.activeEventGroupIndex].id
-				    		}
-							$http.post("rest/updateTag",tag)
-							.then(response=>{
-								$scope.tagsList[index] = JSON.parse(JSON.stringify(tag));
-							});
-				    	}
-				    	else{
-				    		console.log("ERROR!! INDEX IS GIVEN AS NULL!!")
-				    	}
-				    	break;
-				}
-			}			
-			$scope.saveTagChanges = function(){
-				if($scope.currentTagsList.length >0 ){
-					console.log($scope.currentTagsList)
-					$http.post('rest/postAllNewTags',$scope.currentTagsList)
-					.then(response => {
-						$scope.currentTagsList = [];
-						$scope.getTagsForEventId($scope.activeEvent['id']);
-					})
-					.catch(err=>console.log(err))
-				}
-				
-			}
-			
-			/*
-			 * MODAL CODE FOR GROUPS
-			 * 
-			 */
-			
-			$scope.openCreateGroupModal = function(ev){
-				$mdDialog.show({
-					  controller: 'createGroupModalController',
-				      templateUrl: 'views/modals/createGroupModal.html',
-				      parent: angular.element(document.body),
-				      targetEvent: ev,
-				      clickOutsideToClose:true,
-				      fullscreen: false
-				})
-				.then(function(response){
-					$scope.loadGroups();
-				},function(){
-					console.log("GROUP CREATION CANCELLED");
-				});
-			}
-			$scope.openAddAdminToGroupModal = function(ev){
-				$mdDialog.show({
-					  controller: 'addAdminToGroupModalController',
-				      templateUrl: 'views/modals/addAdminToGroupModal.html',
-				      parent: angular.element(document.body),
-				      targetEvent: ev,
-				      clickOutsideToClose:true,
-				      locals:{groupData:$scope.activeGroup},
-				      fullscreen: false
-				})
-				.then(function(response){
-					$scope.getAdminForGroup($scope.activeGroup);					
-				},function(){
-					$scope.getAdminForGroup($scope.activeGroup);
-				});
-			}
-			$scope.removeUserFromGroup = function(){
-				
-			}
-			/*
-			 * END MODAL CODE FOR GROUPS
-			 */
-	
-			$scope.openCreateAgendaModal = function(ev){
-				$mdDialog.show({
-					  controller: 'adminEventAgendaModalCtrl',
-				      templateUrl: 'views/modals/adminEventAgendaModal.html',
-				      parent: angular.element(document.body),
-				      targetEvent: ev,
-				      clickOutsideToClose:true,
-				      locals:{eventData:{eventId : $scope.activeEvent['id']}},
-				      fullscreen: true
-				})
-				.then(function(response){
-					//$scope.currentTagsList.push(response)
-				},function(){
-					console.log("CREATION CANCELLED");
-				});
-			}
-			
-			/**
-			 * 
-			 * FILE DOWNLOAD METHODS
-			 */
-			var downloadDataAsFile = function(data,fileName){
-			   var a = document.createElement('a');
-			   a.href = 'data:attachment/csv;charset=utf-8,' + encodeURI(data);
-			   a.target = '_blank';
-			   a.download = fileName;
-			   document.body.appendChild(a);
-			   a.click();
-			}
-			$scope.downloadComments = function(){
-				if($scope.activeTagForDownload){
-					var tagId = $scope.activeTagForDownload['id']
-					var tagName = $scope.activeTagForDownload['name'].trim()
-				}
-				var config = {
-						params:{
-							eventId : $scope.activeEvent['id'],
-							tagId :   tagId || null
-						}
-				}
-				$http.get("rest/exportComments",config)
-				.then(response => {
-					var fileName = 'CommentsList-['+ $scope.activeEvent['name'].trim() + '][' + (tagName || 'allTags') +'].txt';
-					downloadDataAsFile(response.data,fileName);
-				});
-			}
-			$scope.downloadQuestions = function(){
-				var config = {
-						params:{
-							eventId : $scope.activeEvent['id']
-						}
-				}
-				$http.get("rest/exportQuestions",config)
-				.then(response => {
-					var fileName = 'QuestionsList-['+ $scope.activeEvent['name'].trim() + '].txt';
-					downloadDataAsFile(response.data,fileName);
-				});
-			}
 		}
 	})
 	.catch(err=>console.log(err))
-	
-	
 });
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -1713,3 +1703,6 @@ app.controller('ModifyEventModalController',function($scope,$mdDialog,$http,even
 // * 
 // * 
 // */
+
+
+

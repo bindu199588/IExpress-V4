@@ -138,6 +138,14 @@ md-card md-card-actions {
 	background-color:	#006319;
 }
 
+.emojiWrapper .md-button{
+	min-width:60px;
+	flex-basis: 150px;
+	flex-grow:1;
+	flex-shrik:1;
+}
+
+
 .hashtag-card-actions{
 	display: flex;
     align-content: space-between;
