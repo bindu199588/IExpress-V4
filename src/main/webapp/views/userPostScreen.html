@@ -25,7 +25,7 @@
 			<br>
 			<div class="percentContainer" layout="row" layout-align="space-between center">
 	            <div ng-repeat="emotion in emoList" class="emojiWrapper -{{emotion.name}}">
-					<md-button ng-disabled="userRatings[tagId]" class="md-raised md-hue-2 margin-0 padding-10" ng-click="askRatingConfirmation($event,$index)">
+					<md-button flex layout="column" ng-disabled="userRatings[tagId]" class="md-raised md-hue-2 margin-0 padding-10" ng-click="askRatingConfirmation($event,$index)">
 						<md-icon class="icon-30" md-svg-icon="{{emotion.icon}}" aria-label="sentiment"></md-icon>
 						<div class="emoPercent">{{emoPercents[emotion.name]/emoPercents['total']*100 | number: 2}}%</div>
 						<md-progress-linear md-mode="determinate" value="{{emoPercents[emotion.name]/emoPercents['total']*100}}"></md-progress-linear>

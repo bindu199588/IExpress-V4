@@ -14,13 +14,6 @@ app.config(function($stateProvider, $urlRouterProvider){
 		params:{
 			userData:null
 		}
-	})
-	.state("adminDashboard",{
-		url:	"/adminDashboard",
-		templateUrl:	"views/adminDashboard.html",
-		controller:"adminDashboardCtrl",
-		isAdmin : true,
-		authenticate: true
 	})	
 	.state("userLogin",{
 		url:	"/userLogin",
@@ -56,5 +49,60 @@ app.config(function($stateProvider, $urlRouterProvider){
 		authenticate: true
 
 	})
+	
+	/*
+	 * 
+	 * ROUTES FOR ADMIN TABS
+	 * 
+	 */
+	.state("adminDashboard",{
+		url:	"/adminDashboard",
+		templateUrl:	"views/adminDashboard.html",
+		controller:"adminDashboardCtrl",
+		isAdmin : true,
+		authenticate: true
+	})	
+	
+	.state('adminDashboard.groups', {
+	    url: '/groups',
+	    data: {
+	      'selectedTab': 0
+	    },
+	    views: {
+	      'groups': {
+	    	controllerAs: 'vm',
+	        controller: "adminGroupsTabCtrl",
+	        templateUrl: 'views/admin/groups.html'
+	        	
+	      }
+	    }
+	  })
+	.state('adminDashboard.events', {
+	    url: '/events',
+	    data: {
+	      'selectedTab': 1
+	    },
+	    views: {
+	      'events': {
+	    	controllerAs: 'vm',
+	        controller: "adminEventsTabCtrl",
+	        templateUrl: 'views/admin/events.html'
+	      }
+	    }
+	  })
+	  .state('adminDashboard.reviews', {
+	    url: '/reviews',
+	    
+	    data: {
+	      'selectedTab': 2
+	    },
+	    views: {
+	      'reviews': {
+	    	controllerAs: 'vm',
+	        controller: "adminReviewsTabCtrl",
+	        templateUrl: 'views/admin/reviews.html'
+	      }
+	    }
+	  })
 	//$urlRouterProvider.deferIntercept(true);
 });
